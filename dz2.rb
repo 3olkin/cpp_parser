@@ -1,5 +1,5 @@
 require 'strscan'
-
+$error
 # # Ввод С++ строки
 # print('Input C++ scanf or printf function: ')
 # code = gets.chomp
@@ -42,29 +42,40 @@ def preparser(str)
     elsif flag && (match = scanner.scan(/([^\\"%])+/)) # TODO: check it
       parsed << ['tt', match]
     elsif !flag && (match = scanner.scan(/'(?:\\)?.'/))
-      # raise if (match.length == 4) && !metachars.include?(match)
-
+      if (match.length == 4) && !metachars.include?(match)
+        $error = "Too lot of symbols for char type (#{match})"
+        raise
+      end
       parsed << ['ch', match]
     elsif match = scanner.scan(/\(/)
       parsed << ['(', match]
     elsif match = scanner.scan(/\)/)
       parsed << [')', match]
     else
-
-      parsed << %w[un unknown]
-      break
+      $error = 'Unknown sequence of symbols'
+      raise
     end
   end
 
   parsed
 end
 
-def tokenizer(_str)
-  tokens = []
+def tokenizer(str)
+  tokens = preparser(str)
+  if (tokens[0][0] != 'sc') && (tokens[0][0] != 'pr')
+    $error = "Wrong function call, #{tokens[0][1]} is not a declared function name"
+    raise
+  end
+  if tokens[-1][0] != ';'
+    $error = 'Missing ; at the end of string'
+    raise
+  end
+
+  tokens
 end
 
 toster = 'printf("(!$#)+,-:;<=>?@^_‘{|}~");'
 # tester1 = '  printf ("printf %c", '\n');' correct!
 tester2 = 'printf("; %s%d", &abc, qwerty_123);'
-tester3 = 'scanf("%d",&i);'
-p preparser(tester3)
+tester3 = 'scanf("%d",(&i));'
+p tokenizer(tester3)
