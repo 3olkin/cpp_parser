@@ -16,7 +16,8 @@ def preparser(str)
     elsif match = scanner.scan(/"/)                       # находим `"` = граница string
       flag = !flag
       parsed << ['br', match]
-    # elsif flag && (match = scanner.scan(/\s+/))           # обрабатываем значащие пробелы
+    # ? можно выпилить?
+    # elsif flag && (match = scanner.scan(/\s+/))         # обрабатываем значащие пробелы
     #   parsed << ['ws', match]
     elsif flag && (match = scanner.scan(/%[dfcs]/))       # находим символы форматов
       parsed << ['sf', match]
@@ -26,18 +27,18 @@ def preparser(str)
       parsed << ['sn', match]
     elsif !flag && (match = scanner.scan(/,/)) # ?
       parsed << [',', match]
-    elsif match = scanner.scan(/;(?=\z)/)
+    elsif !flag && (match = scanner.scan(/;(?=\z)/))
       parsed << [';', match]
-    elsif match = scanner.scan(/scanf/)                   # находим вызов функции scanf
+    elsif !flag && (match = scanner.scan(/scanf/)) # находим вызов функции scanf
       parsed << ['sc', match]
-    elsif match = scanner.scan(/printf/)                  # находим вызов функции printf
+    elsif !flag && (match = scanner.scan(/printf/)) # находим вызов функции printf
       parsed << ['pr', match]
     elsif !flag && (match = scanner.scan(/[[:alpha:]](?:[[:alnum:]]|_)*(?=\W)/))
       parsed << ['id', match]
     elsif !flag && (match = scanner.scan(/(?:\-|\+)?[[:digit:]]+(?=\W)/))
       parsed << ['dg', match]
     elsif flag && (match = scanner.scan(/([^\\"%])+/)) # TODO: check it
-      parsed << ['txt', match]
+      parsed << ['tt', match]
     elsif !flag && (match = scanner.scan(/'(?:\\)?.'/))
       # raise if (match.length == 4) && !metachars.include?(match)
 
@@ -47,6 +48,7 @@ def preparser(str)
     elsif match = scanner.scan(/\)/)
       parsed << [')', match]
     else
+
       parsed << %w[un unknown]
       break
     end
@@ -60,5 +62,6 @@ def tokenizer(_str)
 end
 
 toster = 'printf("(!$#)+,-:;<=>?@^_‘{|}~");'
-
-p preparser(toster)
+# tester1 = '  printf ("printf %c", '\n');' correct!
+tester2 = 'printf("; %s%d", abc, qwerty_123);'
+p preparser(tester2)
