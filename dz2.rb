@@ -2,7 +2,7 @@ require 'strscan'
 $error
 
 def preparser(str)
-  # metachars = [] # ! заполнить
+  metachars = [] # ! заполнить
   flag = false                                            # флаг нахождения внутри string
   parsed = []
   scanner = StringScanner.new(str)
@@ -16,19 +16,19 @@ def preparser(str)
     # ? можно выпилить?
     # elsif flag && (match = scanner.scan(/\s+/))         # обрабатываем значащие пробелы
     #   parsed << ['ws', match]
-    elsif flag && (match = scanner.scan(/%[dfcsp]/)) # находим символы форматов
+    elsif flag && (match = scanner.scan(/%[dfcsp]/))      # находим символы форматов
       parsed << ['sf', match]
     elsif match = scanner.scan(/%%/)                      # находим символ `%`
       parsed << ['%%', match]
     elsif match = scanner.scan(/\\n/)                     # находим символ `\n`
       parsed << ['sn', match]
-    elsif !flag && (match = scanner.scan(/,/)) # ?
+    elsif !flag && (match = scanner.scan(/,/))            # находим `,` за пределами string
       parsed << [',', match]
-    elsif !flag && (match = scanner.scan(/;(?=\z)/))
+    elsif !flag && (match = scanner.scan(/;(?=\z)/))      # находим конечную `;`
       parsed << [';', match]
-    elsif !flag && (match = scanner.scan(/scanf/)) # находим вызов функции scanf
+    elsif !flag && (match = scanner.scan(/scanf/))        # находим вызов функции scanf
       parsed << ['sc', match]
-    elsif !flag && (match = scanner.scan(/printf/)) # находим вызов функции printf
+    elsif !flag && (match = scanner.scan(/printf/))       # находим вызов функции printf
       parsed << ['pr', match]
     elsif !flag && (match = scanner.scan(/(?:&)?[[:alpha:]](?:[[:alnum:]]|_)*(?=\W)/))
       parsed << ['id', match]
