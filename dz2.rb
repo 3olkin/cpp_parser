@@ -1,8 +1,5 @@
 require 'strscan'
 $error
-# # Ввод С++ строки
-# print('Input C++ scanf or printf function: ')
-# code = gets.chomp
 
 def preparser(str)
   # metachars = [] # ! заполнить
@@ -19,7 +16,7 @@ def preparser(str)
     # ? можно выпилить?
     # elsif flag && (match = scanner.scan(/\s+/))         # обрабатываем значащие пробелы
     #   parsed << ['ws', match]
-    elsif flag && (match = scanner.scan(/%[dfcs]/)) # находим символы форматов
+    elsif flag && (match = scanner.scan(/%[dfcsp]/)) # находим символы форматов
       parsed << ['sf', match]
     elsif match = scanner.scan(/%%/)                      # находим символ `%`
       parsed << ['%%', match]
@@ -33,9 +30,7 @@ def preparser(str)
       parsed << ['sc', match]
     elsif !flag && (match = scanner.scan(/printf/)) # находим вызов функции printf
       parsed << ['pr', match]
-    elsif !flag && (parsed[0][0] == 'pr') && (match = scanner.scan(/[[:alpha:]](?:[[:alnum:]]|_)*(?=\W)/))
-      parsed << ['id', match]
-    elsif !flag && (parsed[0][0] == 'sc') && (match = scanner.scan(/(?:&)?[[:alpha:]](?:[[:alnum:]]|_)*(?=\W)/))
+    elsif !flag && (match = scanner.scan(/(?:&)?[[:alpha:]](?:[[:alnum:]]|_)*(?=\W)/))
       parsed << ['id', match]
     elsif !flag && (match = scanner.scan(/(?:\-|\+)?[[:digit:]]+(?=\W)/))
       parsed << ['dg', match]
@@ -74,8 +69,15 @@ def tokenizer(str)
   tokens
 end
 
-toster = 'printf("(!$#)+,-:;<=>?@^_‘{|}~");'
-# tester1 = '  printf ("printf %c", '\n');' correct!
-tester2 = 'printf("; %s%d", &abc, qwerty_123);'
-tester3 = 'scanf("%d",(&i));'
-p tokenizer(tester3)
+begin
+  # # Ввод С++ строки
+  # print('Input C++ scanf or printf function: ')
+  # code = gets.chomp
+  toster = 'printf("(!$#)+,-:;<=>?@^_‘{|}~");'
+  # tester1 = '  printf ("printf %c", '\n');' correct!
+  tester2 = 'printf("; %s%d", &abc, qwerty_123);'
+  tester3 = 'scaf("%d",(&i));'
+  p tokenizer(tester3)
+rescue StandardError
+  puts $error
+end
