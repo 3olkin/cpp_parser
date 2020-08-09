@@ -61,6 +61,17 @@ def tokenizer(str)
     raise
   end
 
+  opened = 0
+  closed = 0
+  tokens.each do |elem|
+    opened += 1 if elem[0] == '('
+    closed += 1 if elem[0] == ')'
+  end
+  unless opened == closed
+    $error = 'Wrong number of brackets'
+    raise
+  end
+
   tokens
 end
 
