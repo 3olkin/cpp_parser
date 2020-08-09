@@ -5,7 +5,9 @@
 - make `metachars` array
 - add error catcher
 - add type matcher
-
+- to `missing ; error` add not closed string checker
+- bug on char detection
+- add `string` checker depended on place
 
 ## Table of tokens
 
@@ -14,7 +16,7 @@
 - `br` = `"` borders of string
 - `sc` = scanf
 - `pr` = printf
-- `sf` = format symbols
+- `fs` = format symbols
 - `sn` = `\n` symbol
 - `%%` = `%` symbol
 - `id` = varuable

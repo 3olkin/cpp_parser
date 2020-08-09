@@ -2,33 +2,29 @@ require 'strscan'
 $error
 
 def preparser(str)
-  metachars = [] # ! заполнить
-  flag = false                                            # флаг нахождения внутри string
+  flag = false # флаг нахождения внутри string
   parsed = []
   scanner = StringScanner.new(str)
   until scanner.empty?
-    if !flag && scanner.scan(/\s+/)                       # пропускаем незначащие пробелы
-    elsif match = scanner.scan(/\\"/)                     # находим `"` внутри string
+    if !flag && scanner.scan(/\s+/)
+    elsif match = scanner.scan(/\\"/)
       parsed << ['in', match]
-    elsif match = scanner.scan(/"/)                       # находим `"` = граница string
+    elsif match = scanner.scan(/"/)
       flag = !flag
       parsed << ['br', match]
-    # ? можно выпилить?
-    # elsif flag && (match = scanner.scan(/\s+/))         # обрабатываем значащие пробелы
-    #   parsed << ['ws', match]
-    elsif flag && (match = scanner.scan(/%[dfcsp]/))      # находим символы форматов
-      parsed << ['sf', match]
-    elsif match = scanner.scan(/%%/)                      # находим символ `%`
-      parsed << ['%%', match]
-    elsif match = scanner.scan(/\\n/)                     # находим символ `\n`
-      parsed << ['sn', match]
-    elsif !flag && (match = scanner.scan(/,/))            # находим `,` за пределами string
+    elsif flag && (match = scanner.scan(/%[dfcsp]/))
+      parsed << ['fs', match]
+    elsif flag && (match = scanner.scan(/%%/))
+      parsed << ['pc', match]
+    elsif flag && (match = scanner.scan(/\\[nt]/))
+      parsed << ['bs', match]
+    elsif !flag && (match = scanner.scan(/,/))
       parsed << [',', match]
-    elsif !flag && (match = scanner.scan(/;(?=\z)/))      # находим конечную `;`
+    elsif match = scanner.scan(/;(?=\Z)/)
       parsed << [';', match]
-    elsif !flag && (match = scanner.scan(/scanf/))        # находим вызов функции scanf
+    elsif !flag && (match = scanner.scan(/scanf/))
       parsed << ['sc', match]
-    elsif !flag && (match = scanner.scan(/printf/))       # находим вызов функции printf
+    elsif !flag && (match = scanner.scan(/printf/))
       parsed << ['pr', match]
     elsif !flag && (match = scanner.scan(/(?:&)?[[:alpha:]](?:[[:alnum:]]|_)*(?=\W)/))
       parsed << ['id', match]
@@ -36,12 +32,11 @@ def preparser(str)
       parsed << ['dg', match]
     elsif flag && (match = scanner.scan(/([^\\"%])+/)) # TODO: check it
       parsed << ['tt', match]
-    elsif !flag && (match = scanner.scan(/'(?:\\)?.'/))
-      if (match.length == 4) && !metachars.include?(match)
-        $error = "Too lot of symbols for char type (#{match})"
-        raise
-      end
+    elsif !flag && (match = scanner.scan(/'(?:(\\[nt'\\])|(%%)|([^\\'%nt]))'/))
       parsed << ['ch', match]
+    elsif !flag && (match = scanner.scan(/'(?:(\\[^nt'\\])|(%[^%])|([\\'%nt]))'/))
+      $error = "Wrong char symbol (#{match})"
+      raise
     elsif match = scanner.scan(/\(/)
       parsed << ['(', match]
     elsif match = scanner.scan(/\)/)
@@ -71,13 +66,13 @@ end
 
 begin
   # # Ввод С++ строки
-  # print('Input C++ scanf or printf function: ')
-  # code = gets.chomp
+  print('Input C++ scanf or printf function: ')
+  code = gets.chomp
   toster = 'printf("(!$#)+,-:;<=>?@^_‘{|}~");'
   # tester1 = '  printf ("printf %c", '\n');' correct!
   tester2 = 'printf("; %s%d", &abc, qwerty_123);'
-  tester3 = 'scaf("%d",(&i));'
-  p tokenizer(tester3)
+  tester3 = 'scanf(");'
+  p tokenizer(code)
 rescue StandardError
   puts $error
 end
