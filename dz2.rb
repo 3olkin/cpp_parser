@@ -7,8 +7,8 @@ def preparser(str)
   scanner = StringScanner.new(str)
   until scanner.empty?
     if !flag && scanner.scan(/\s+/)
-    elsif match = scanner.scan(/\\"/)
-      parsed << ['in', match]
+    elsif flag && (match = scanner.scan(/\\[nt"]/))
+      parsed << ['bs', match]
     elsif match = scanner.scan(/"/)
       flag = !flag
       parsed << ['br', match]
@@ -16,8 +16,6 @@ def preparser(str)
       parsed << ['fs', match]
     elsif flag && (match = scanner.scan(/%%/))
       parsed << ['pc', match]
-    elsif flag && (match = scanner.scan(/\\[nt]/))
-      parsed << ['bs', match]
     elsif !flag && (match = scanner.scan(/,/))
       parsed << [',', match]
     elsif match = scanner.scan(/;(?=\Z)/)
