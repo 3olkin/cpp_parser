@@ -12,7 +12,7 @@ def preparser(str)
     elsif match = scanner.scan(/"/)
       flag = !flag
       parsed << ['br', match]
-    elsif flag && (match = scanner.scan(/%[dfcsp]/))
+    elsif flag && (match = scanner.scan(/%([\+\-#0\s])?([[:digit:]]+|\*)?(.([[:digit:]]+|\*))?[dfcsp]/))
       parsed << ['fs', match]
     elsif flag && (match = scanner.scan(/%%/))
       parsed << ['pc', match]

@@ -6,5 +6,6 @@ int main(int argc, char const *argv[]) {
   printf(("(!'$#)+,-:;<=>?@^_‘{|}~\n"));
   printf("'c'%s", "qwerty");
   printf("\n% .2f", 0.005);
+  printf("\n%**d", i);
   return 0;
 }
