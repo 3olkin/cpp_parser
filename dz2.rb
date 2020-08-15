@@ -26,6 +26,8 @@ def preparser(str)
       parsed << ['pr', match]
     elsif !flag && (match = scanner.scan(/(?:&)?[[:alpha:]](?:[[:alnum:]]|_)*(?=\W)/))
       parsed << ['id', match]
+    elsif !flag && (match = scanner.scan(/(?:\-|\+)?[[:digit:]]+.[[:digit:]]+(?=\W)/))
+      parsed << ['fl', match]
     elsif !flag && (match = scanner.scan(/(?:\-|\+)?[[:digit:]]+(?=\W)/))
       parsed << ['dg', match]
     elsif flag && (match = scanner.scan(/([^\\"%])+/)) # TODO: check it
