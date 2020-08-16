@@ -7,6 +7,6 @@ int main(int argc, char const *argv[]) {
   printf("'c'%s", "%d");
   printf("\n% .22f", 0.005);
   printf("\n%d", i);
-
+  scanf("%% %d", &i);
   return 0;
 }
