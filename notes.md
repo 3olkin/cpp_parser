@@ -23,3 +23,11 @@
 - `dg` = digit
 - `tt` = text in `string`
 - `ch` = symbol
+
+## States
+
+- 1 - <.
+- 2 - =.
+- 3 - .>
+- 99 - E
+- 0 - <<
