@@ -9,6 +9,7 @@ begin
     lines = file.readlines
     file.close
     code = lines.join(' ').delete("\n").downcase.squeeze(' ')
+    puts 'Inputed code as one line string:'
     p code
   end
 rescue StandardError
@@ -41,7 +42,7 @@ def tokenizer(code)
       elsif match = scanner.scan(/(?:\-|\+)?[[:digit:]]+(?=\W)/)
         tokens << ['cn', match]
       else
-        raise
+        raise 'unknown sequense of symbols'
       end
     end
 
@@ -53,14 +54,17 @@ def tokenizer(code)
       [')', '{'],
       [')', ';'],
       [';', '}'],
-      ['}', '}']
+      ['##', '}'],
+      ['}', '##']
     ]
     i = 0
     while i < (tokens.length - 1)
+      tokens.insert(i + 1, ['##', '']) if tokens[i][0] == '}'
       tokens.insert(i + 1, ['@@', '']) if situations.include?([tokens[i][0], tokens[i + 1][0]])
       i += 1
     end
     tokens.insert(0, ['@@', ''])
+    tokens << ['@@', ''] << ['##', ''] if tokens[-1][0] == '}'
   end
 end
 
@@ -97,32 +101,41 @@ def analyzer(tokens)
       row = col
       i += 2
     end
-
-    raise 'stack is not empty!' unless stack.empty?
+    if stack.length == 1
+      arr << [].tap do |tmp|
+        i0 = stack.pop
+        (i0..(tokens.length - 1)).each do |j|
+          tmp.push(tokens[j]) if (tokens[j][0] != '@@') && (tokens[j][0] != '##')
+        end
+      end
+    elsif stack.length > 1
+      raise "stack is not empty (#{stack})"
+    end
   end
 end
 
 def automaton_table
   [
-    [4, 1, 4, 4, 4, 4, 4, 4],
-    [4, 4, 1, 4, 4, 4, 4, 4],
-    [4, 4, 4, 3, 4, 4, 4, 4],
-    [4, 1, 4, 4, 4, 3, 2, 4],
-    [4, 4, 4, 4, 4, 2, 4, 4],
-    [4, 1, 4, 4, 2, 4, 4, 3],
-    [4, 1, 4, 4, 2, 2, 4, 4],
-    [4, 4, 4, 4, 4, 4, 4, 3]
+    [4, 1, 4, 4, 4, 4, 4, 4, 4],
+    [4, 4, 1, 4, 4, 4, 4, 4, 4],
+    [4, 4, 4, 3, 4, 4, 4, 4, 4],
+    [4, 1, 4, 4, 4, 3, 1, 4, 4],
+    [4, 4, 4, 4, 4, 2, 4, 4, 4],
+    [4, 1, 4, 4, 2, 4, 4, 3, 4],
+    [4, 1, 4, 4, 2, 4, 4, 3, 4],
+    [4, 4, 4, 4, 4, 4, 4, 4, 3],
+    [4, 4, 4, 4, 4, 4, 4, 2, 4]
   ]
 end
 
 def table_header
-  ['??', 'wh', '(', ')', '=', ';', '{', '}']
+  ['??', 'wh', '(', ')', '=', ';', '{', '}', '##']
 end
 
 tokens = tokenizer(code)
+puts 'List of tokens:'
 p tokens
-res = analyzer(tokens)
-
-res.each do |el|
+puts 'List of blocks:'
+analyzer(tokens).each do |el|
   p el
 end
